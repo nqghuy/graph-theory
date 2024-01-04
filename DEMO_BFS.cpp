@@ -1,22 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-/*
-directed graph
-input 
-10 11
-1 2
-1 3
-1 10
-2 4
-3 5
-3 6
-5 8
-5 10
-6 7
-7 3
-8 9
-output: 1 2 3 10 4 5 6 8 7 9
-*/
+
 void BFS(vector<int> adj[], int visited[], int vertex){
     queue <int> outVertex;
     outVertex.push(vertex);
@@ -24,7 +8,7 @@ void BFS(vector<int> adj[], int visited[], int vertex){
     while (!outVertex.empty()){
         int currentVer = outVertex.front();
         outVertex.pop();
-        cout << currentVer << " ";
+        //cout << currentVer << " ";
         for (int x : adj[currentVer]){
             if (!visited[x]){
                 outVertex.push(x);
@@ -33,6 +17,31 @@ void BFS(vector<int> adj[], int visited[], int vertex){
         }
     }
 }
+
+
+void DFS(vector <int> adj[], int visited[], int vertex){
+    visited[vertex] = 1;
+    cout << vertex << " ";
+    for (int x : adj[vertex]){
+        if (!visited[x]){
+            DFS(adj, visited, x);
+        }
+    }
+}
+
+int connectedComponent(vector <int> adj[], int visited[], int n){
+    int cnt = 0;
+    memset(visited, 0, sizeof(visited));
+    for (int i = 1; i <= n; i++){
+        if (!visited[i]){
+            cnt++;
+            DFS(adj, visited, i);
+            cout << endl;
+        }
+    }
+    return cnt;
+}
+
 int main(){
     //n is the number of vertices
     //m is the number of edge
@@ -44,8 +53,10 @@ int main(){
         int startVer, endVer;
         cin >> startVer >> endVer;
         adj[startVer].push_back(endVer);
-        // adj[endVer].push_back(startVer);
+
+        //if not directed graph
+        adj[endVer].push_back(startVer);
     }
     int visited[20] = {};
-    BFS(adj, visited, 1);
+    cout << connectedComponent(adj, visited, n);
 }
