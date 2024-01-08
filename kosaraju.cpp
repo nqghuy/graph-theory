@@ -1,5 +1,12 @@
 #include <bits/stdc++.h>
 using namespace std;
+/*
+step 1: create a stack(like topo sorting) by dfs
+step 2: create tranpose graph
+step 3: pop vertex in stack and use dfs to list strongly connected component
+O(2*(V + E))
+*/
+
 //n, m is the number of vertices and edges respectively
 int n, m;
 
@@ -19,6 +26,8 @@ vector <int> scc[20];
 stack <int> topo;
 
 void DFS(int u);
+
+void DFS2(int u);
 
 void show_scc();
 
@@ -44,22 +53,23 @@ void DFS(int u){
     topo.push(u);
 }
 
-void DFS2(int u, int cnt){
+void DFS2(int u){
     visited[u] = 1;
-    scc[cnt].push_back(u);
+    cout << u << " ";
     for (int v : transpose_adj[u]){
         if (!visited[v]){
-            DFS2(v, cnt);
+            DFS2(v);
         }
     }
 }
 
 void show_scc(){
     //create a topo sorting list
-    DFS(1);
-
-    //the order of scc
-    int cnt = 0;
+    for (int i = 1; i <= n; i++){
+        if (!visited[i]){
+            DFS(i);
+        }
+    }
 
     //reset visited
     memset(visited, 0, sizeof(visited));
@@ -69,16 +79,8 @@ void show_scc(){
         int v = topo.top();
         topo.pop();
         if (!visited[v]){
-            DFS2(v, cnt);
-            cnt++;
+            DFS2(v);
+            cout << endl;
         }
-    }
-
-    //show scc
-    for (int i = 0; i < cnt; i++){
-        for (int k : scc[i]){
-            cout << k << " ";
-        }
-        cout << endl;
     }
 }
