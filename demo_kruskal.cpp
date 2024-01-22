@@ -25,7 +25,7 @@ void make_set();
 int find(int);
 
 //union 2 set
-void Union (int, int);
+bool Union (int, int);
 
 int main(){
     cin >> n >> m;
@@ -40,24 +40,24 @@ int main(){
     sort(edge_list.begin(), edge_list.end(), cmp);
 
     //to know about the number of used vertices
-    set <int> MST;
+    vector <edge> MST;
 
     //sum of weight in MST
     int min_d = 0;
 
     for (edge x : edge_list){
-        //the spanning tree has all vertex and cannot be spanned
-        if (MST.size() >= n)    break;
+        //the spanning tree has all vertices and cannot be spanned if the number of edges is equal to the number of vertices - 1
+        if (MST.size() == n -1)    break;
 
         //not create cycle
-        if (find(x.u) != find(x.v)){
-            cout << x.u << " " << x.v << endl;
-            MST.insert(x.u);
-            MST.insert(x.v);
-
+        if (Union(x.u, x.v)){
+            MST.push_back(x);
             Union(x.u, x.v);
             min_d += x.weight;
         }
+    }
+    for (edge x : MST){
+        cout << x.u << " " << x.v << " " << x.weight << endl;
     }
     cout << min_d;
 }
@@ -82,7 +82,7 @@ int find(int v){
     return parent[v];
 }
 
-void Union(int a, int b){
+bool Union(int a, int b){
     // the parent(leader) of a and b
     a = find (a);
     b = find (b);
@@ -96,5 +96,8 @@ void Union(int a, int b){
 
         //add up size
         size[a] += size[b];
+        
+        return true;
     }
+    return false;
 }
