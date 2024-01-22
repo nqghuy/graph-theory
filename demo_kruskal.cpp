@@ -56,10 +56,16 @@ int main(){
             min_d += x.weight;
         }
     }
-    for (edge x : MST){
-        cout << x.u << " " << x.v << " " << x.weight << endl;
+    //the graph is not connected
+    if (MST.size() != n - 1){
+        cout << "the graph is not connected\n";
     }
-    cout << min_d;
+    else {
+        for (edge x : MST){
+            cout << x.u << " " << x.v << " " << x.weight << endl;
+        }
+        cout << min_d;
+    }
 }
 
 bool cmp(edge a, edge b){
