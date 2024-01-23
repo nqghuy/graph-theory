@@ -48,51 +48,54 @@ int main(){
 int prim(){
     //mark all edges is not used
     memset(used, false, sizeof(used));
-    memset(minWeight, MAX_WEIGHT, sizeof(minWeight));
     memset(parent, 0, sizeof(parent));
+    for (int i = 0; i < maxn; i++){
+        minWeight[i] = MAX_WEIGHT;
+    }
 
     //push the first vertex
     nextEdge.push({0, 1});
-
     //the minimum spanning tree
     int min_d = 0;
 
     //show the tree
-    vector <pair<int, int>> tree;
+    vector <edge> tree;
 
     while (tree.size() != n){
         //take the next vertex
-        pair <int, int> infor = nextEdge.top();
+        pair <int, int> top = nextEdge.top();
         nextEdge.pop();
-        int weight = infor.first;
-        int currentVertex = infor.second;
+        int weight = top.first;
+        int currentVertex = top.second;
 
-        if (!used[currentVertex]){
-            //mark chosen vertex is used
-            used[currentVertex] = true;
+        //check if current vertex is used
+        if (used[currentVertex])    continue;
 
-            //add up size of d
-            min_d += weight;
+        //mark chosen vertex is used
+        used[currentVertex] = true;
 
-            //push next vertex into the tree
-            tree.push_back({currentVertex, minWeight[currentVertex]});
+        //add up size of d
+        min_d += weight;
 
-            for (pair <int, int> adjEdge : adj[currentVertex]){
-                int weight = adjEdge.first;
-                int u = adjEdge.second;
-                if (!used[u]){
-                    nextEdge.push({weight, u});
-                    if (weight < minWeight[u]){
-                        minWeight[u] = weight;
-                        parent[u] = currentVertex;
-                    }
-                }
+        //push next vertex into the tree
+        tree.push_back({parent[currentVertex], currentVertex, minWeight[currentVertex]});
+
+        for (pair <int, int> adjEdge : adj[currentVertex]){
+            int weight = adjEdge.first;
+            int u = adjEdge.second;
+
+            //push u into priority queue if there is an edge with smaller weight
+            if (!used[u] && weight < minWeight[u]){
+                nextEdge.push({weight, u});
+                minWeight[u] = weight;
+                parent[u] = currentVertex;
             }
         }
         
     }
-    for (int i = 0; i < tree.size(); i++){
-        cout << parent[tree[i].first] << " " << tree[i].first << " " << tree[i].second << endl;
+    //the first edge is not printed
+    for (int i = 1; i < tree.size(); i++){
+        cout << tree[i].u << " " << tree[i].v << " " << tree[i].weight << endl;
     }
     return min_d;
 }
