@@ -5,31 +5,42 @@ using namespace std;
 //maximum number of vertices
 const int maxn = 100001;
 
+//maximum distance
+const long long INF = 1e18;
 // the numer of vertices and edges respectively
 int n, m;
 
 //the parent of each vertex
 int parent[maxn];
 
-//distance from source vertex to each vertex
-int d[maxn];
-
-//marked if the vertex is visited
-bool visited[maxn];
 
 //adjacency list
 vector <pair<int, int>> adj[maxn];
 
+void showPath(int u){
+    vector <int> path;
+    while (u != -1){
+        path.push_back(u);
+        u = parent[u];
+    }
+    for (int i = path.size() - 1; i >= 0; i--){
+        cout << path[i] << " ";
+    }
+}
+
 //find min distance to other distances
 void dijkstra(int startVer){
+    //distance from source vertex to each vertex
+    long long d[maxn];
+
     //set the distance from source to other vertices is infinity
     for (int i = 1; i <= n; i++){
-        d[i] = INT_MAX;
+        d[i] = INF;
     }
     d[startVer] = 0;
     
     //choose the vertex is unmarked and the distance is smallest
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<pair<long long, int>>> pq;
 
     pq.push({d[startVer], startVer});
     while (!pq.empty()){
@@ -39,22 +50,36 @@ void dijkstra(int startVer){
         //pop from queue
         pq.pop();
         int current_vertex = top.second;
-        int d_current_vertex = top.first;
-
-        if(visited[current_vertex])    continue;
-        visited[current_vertex] = true;
+        long long d_current_vertex = top.first;
+        
+        //if the vertex is visited
+        if (d_current_vertex > d[current_vertex])   continue;
 
         for (pair<int, int> edge : adj[current_vertex]){
             int adjacencyVertex = edge.first;
             int weight = edge.second;
 
             //relaxation
-            d[adjacencyVertex] = min(d[adjacencyVertex], d[current_vertex] + weight);
-            pq.push({d[adjacencyVertex], adjacencyVertex});
+            if (d[adjacencyVertex] > d[current_vertex] + weight){
+                //update new distance
+                d[adjacencyVertex] = min(d[adjacencyVertex], d[current_vertex] + weight);
+
+                //push into queue
+                pq.push({d[adjacencyVertex], adjacencyVertex});
+
+                //set parent
+                parent[adjacencyVertex] = current_vertex;
+            }
         }
     }
+    //start point
+    parent[startVer] = -1;
+
+    // show distance and path
     for (int i = 1; i <= n; i++){
-        cout << d[i] << endl;
+        cout << d[i] << ": ";
+        showPath(i);
+        cout << endl;
     }
 }
 
@@ -67,9 +92,7 @@ int main(){
         adj[u].push_back({v, w});
     }
 
-    int startVer;
-    cin >> startVer;
-    dijkstra(startVer);
-
+    dijkstra(1);
+    
     return 0;
 }
