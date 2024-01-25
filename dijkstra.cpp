@@ -1,112 +1,101 @@
 #include <bits/stdc++.h>
- 
 using namespace std;
- 
+
 #define ll long long
- 
-//maximum number of vertices
-const int maxn = 100001;
- 
-//maximum distance
-const long long INF = 1e18;
-// the numer of vertices and edges respectively
+
+//the maximum number of vertices
+const int maxn = 1000001;
+
+//the maximum distance is infinity
+const ll INF = 1e18;
+
+//the number of vertices and edges
 int n, m;
- 
-//the parent of each vertex
-int parent[maxn];
- 
-//contains weight of edge between 2 edges
-map<pair<int, int>, int> mp;
- 
-//adjacency list
+
+//adjacency list {destination, cost}
 vector <pair<int, int>> adj[maxn];
- 
-//not used coupon
-long long d1[maxn];
- 
-//used coupon
-long long d2[maxn];
- 
-//prepare to use coupon
-long long d3[maxn];
- 
-struct flight{
-    long long cost1, cost2, cost3;
-    int destination;
- 
-    bool operator > (const flight& another) const
-    {
-        return this->cost1 > another.cost1;
-    }
-    bool operator == (const flight& another) const
-    {
-        return cost1 == another.cost1;
-    }
-};
- 
- 
-//find min distance to other distances
-void dijkstra(int startVer){
-    bool visited[maxn];
- 
-    //set the distance from source to other vertices is infinity
+
+//the distance with coupon
+ll d1[maxn];
+
+//the distance without coupon
+ll d2[maxn];
+
+ll dijkstra()
+{
+    //set all distance = inf
     for (int i = 1; i <= n; i++){
         d1[i] = INF;
         d2[i] = INF;
-        d3[i] = INF;
     }
-    //choose the vertex is unmarked and the distance is smallest
-    priority_queue<flight, vector<flight>, greater<flight>> pq;
     d1[1] = 0;
     d2[1] = 0;
-    d3[1] = 0;
-    pq.push({0, 0, 0, startVer});
-    while (!pq.empty()){
-        //next flight
-        flight f = pq.top();
- 
-        //pop from queue
-        pq.pop();
-        long long d1_f = f.cost1;
-        long long d2_f = f.cost2;
-        long long d3_f = f.cost3;
-        int currentDes = f.destination;
-        
-        //if the vertex is visited
-        if (d1_f > d1[currentDes] || d2_f > d2[currentDes] || d3_f > d3[currentDes])    continue;
- 
-        for (pair<int, int> edge : adj[currentDes]){
-            int nextDes = edge.first;
-            int cost = edge.second;
-            long long tmp_d1 = d1[nextDes];
-            long long tmp_d2 = d2[nextDes];
-            long long tmp_d3 = d3[nextDes];
 
-            d1[nextDes] = min(d1[nextDes], d1[currentDes] + cost);
-            d2[nextDes] = min(d2[nextDes],min(d2[currentDes], d3[currentDes]) + cost);
-            d3[nextDes] = min(d3[nextDes], d1[currentDes] + cost / 2);
- 
-            if (tmp_d1 != d1[nextDes] || tmp_d2 != d2[nextDes] || tmp_d3 != d3[nextDes])
-            pq.push({d1[nextDes], d2[nextDes], d3[nextDes], nextDes});
+    //{cost, destination, coupon}
+    priority_queue<tuple<ll, int, bool>, vector <tuple<ll, int, bool>>, greater<tuple<ll, int, bool>>> pq;
+    pq.push({0, 1, true});
+    while (!pq.empty())
+    {
+        auto it = pq.top();
+        pq.pop();
+
+        //information of current destination
+        ll cost = get<0>(it);
+        int currentDes = get<1>(it);
+        bool coupon = get<2>(it);
+
+        //found smaller path befor
+        if (coupon == true && cost > d1[currentDes])    continue;
+        if (coupon == false && cost > d2[currentDes])   continue;
+
+        for (auto flight : adj[currentDes])
+        {
+            //adjacency destination
+            int nextDes = flight.first;
+            int weight = flight.second;
+
+            //if not use coupon before
+            if (coupon == true)
+            {   
+                //relaxation
+                if (d1[nextDes] > cost + weight)
+                {
+                    d1[nextDes] = cost + weight;
+                    pq.push({d1[nextDes], nextDes, true});
+                }
+                if (d2[nextDes] > cost + weight / 2)
+                {
+                    d2[nextDes] = cost + weight / 2;
+                    pq.push({d2[nextDes], nextDes, false});
+                }
+            }
+            //if use coupon before
+            else if (coupon == false)
+            {
+                //before
+                if (d2[nextDes] > cost + weight)
+                {
+                    d2[nextDes] = cost + weight;
+                    pq.push({d2[nextDes], nextDes, false});
+                }
+            }
         }
     }
-    cout << min({d1[n], d2[n], d3[n]});
-    // for (int i = 1; i <= n; i++){
-    //     cout << d1[i] << " " << d2[i] << " " << d3[i] << endl;
+    // for (int i = 1; i <= n; i++)
+    // {
+    //     cout << d1[i] << " " << d2[i] << endl;
     // }
+    return d2[n];
 }
- 
- 
-int main(){
+
+int main()
+{
     cin >> n >> m;
     for (int i = 0; i < m; i++){
         int u, v, w;
         cin >> u >> v >> w;
         adj[u].push_back({v, w});
-        mp[{u, v}] = w;
     }
- 
-    dijkstra(1);
-    
-    return 0;
+
+    cout << dijkstra();
 }
