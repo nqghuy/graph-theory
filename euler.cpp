@@ -2,6 +2,8 @@
 
 using namespace std;
 
+//g has euler path if g has only two odd degree vertices
+
 // maximum number of vertices
 const int maxn = 100001;
 
