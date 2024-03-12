@@ -2,7 +2,7 @@
 
 using namespace std;
 
-//g has euler path if g has only two odd degree vertices
+//g has euler cycle if all vertices have even degrees
 
 // maximum number of vertices
 const int maxn = 100001;
